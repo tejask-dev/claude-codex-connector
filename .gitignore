@@ -1,0 +1,17 @@
+node_modules/
+dist/
+build/
+coverage/
+.DS_Store
+.test-state/
+.env
+.env.*
+!.env.example
+*.log
+*.jsonl
+*.sqlite*
+*.db
+*.pem
+*.key
+credentials.json
+docs/*-receipt.json

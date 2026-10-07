@@ -1,0 +1,57 @@
+{
+  "name": "claude-codex-connector",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24.0.0 <25"
+  },
+  "bin": {
+    "agent-team": "dist/src/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "check": "tsc --noEmit",
+    "test": "npm run build && node --test dist/test/*.test.js",
+    "install:local": "npm run build && node dist/src/install.js install",
+    "uninstall:local": "node dist/src/install.js uninstall",
+    "pack:desktop": "npm run build && node dist/src/install.js pack",
+    "test:live": "npm run build && node dist/scripts/live.js",
+    "test:controls": "npm run build && node dist/scripts/live-controls.js",
+    "test:activation": "npm run build && node dist/scripts/live-activation.js",
+    "test:capabilities": "npm run build && node dist/scripts/live-capabilities.js",
+    "format": "prettier --write 'src/**/*.ts' 'scripts/*.ts' 'test/*.ts'",
+    "format:check": "prettier --check 'src/**/*.ts' 'scripts/*.ts' 'test/*.ts'",
+    "check:public": "node scripts/check-public.mjs",
+    "verify": "npm run check && npm run format:check && npm test && npm run check:public && npm run pack:desktop"
+  },
+  "dependencies": {
+    "@anthropic-ai/claude-agent-sdk": "0.3.289",
+    "@modelcontextprotocol/sdk": "1.32.0",
+    "smol-toml": "1.9.0",
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.4",
+    "ajv": "8.20.0",
+    "prettier": "3.9.9",
+    "typescript": "7.0.2"
+  },
+  "description": "Local MCP coordination between Claude and Codex with persistent sessions and isolated workspaces.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tejask-dev/claude-codex-connector.git"
+  },
+  "homepage": "https://github.com/tejask-dev/claude-codex-connector#readme",
+  "bugs": {
+    "url": "https://github.com/tejask-dev/claude-codex-connector/issues"
+  },
+  "keywords": [
+    "mcp",
+    "codex",
+    "claude",
+    "agents",
+    "local-first"
+  ]
+}
