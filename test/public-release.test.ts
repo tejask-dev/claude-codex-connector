@@ -13,11 +13,13 @@ import {
   childEnvironment,
   findExecutable,
   repoRoot,
+  projectPath,
 } from "../src/config.js";
 import { configure } from "../src/setup.js";
 import { install, uninstall, replaceBlock } from "../src/install.js";
 import { createSnapshot, projectInstructions } from "../src/workspace.js";
 import { assertDistribution } from "../src/client.js";
+import { toolDecision } from "../src/providers/claude.js";
 
 function fixture(fn: (home: string) => void) {
   const home = fs.mkdtempSync(path.join(os.tmpdir(), "connector-public-"));
@@ -203,4 +205,44 @@ test("uninstall without an ownership receipt cannot remove another installation"
       /unrelated agent-team Codex entry/,
     );
     assert.equal(fs.readFileSync(file, "utf8"), foreign);
+  }));
+
+test("unconfigured public state grants no project access", () =>
+  fixture((home) => {
+    assert.deepEqual(config().roots, []);
+    assert.throws(() => projectPath(home, config()), /allowed root/);
+  }));
+
+test("uninstall preserves managed blocks subsequently replaced by another checkout", () =>
+  fixture((home) => {
+    fs.mkdirSync(path.join(home, "Developer"));
+    install(home, repoRoot, true);
+    const files = [
+      path.join(home, ".codex/config.toml"),
+      path.join(home, "Developer/AGENTS.md"),
+    ];
+    const foreign = path.join(home, "other-checkout");
+    for (const file of files)
+      fs.writeFileSync(
+        file,
+        fs.readFileSync(file, "utf8").replaceAll(repoRoot, foreign),
+      );
+    const expected = files.map((file) => fs.readFileSync(file, "utf8"));
+    const result = uninstall(home, repoRoot);
+    assert.deepEqual(result.skipped, files);
+    for (const [i, file] of files.entries())
+      assert.equal(fs.readFileSync(file, "utf8"), expected[i]);
+  }));
+
+test("read-only Glob denies absolute and traversal patterns without rejecting scoped wildcards", () =>
+  fixture((home) => {
+    for (const pattern of ["../*", "/tmp/*", "{src,/tmp/*}", "{src,../*}"])
+      assert.match(
+        toolDecision(home, "read", "Glob", { pattern }) || "",
+        /relative/,
+      );
+    assert.equal(
+      toolDecision(home, "read", "Glob", { pattern: "**/*.ts" }),
+      undefined,
+    );
   }));

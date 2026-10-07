@@ -16,7 +16,7 @@ node dist/src/cli.js auth claude
 npm run install:local
 ```
 
-Roots must already exist. Repeat `--root` for multiple roots. Use an absolute `--codex` path when discovery cannot find it. Configure stores roots and the executable path in the private state directory's `config.json`. The CLI auth prompt stores the explicit Anthropic API key in `credentials.json` with mode 600 inside a mode-700 directory. For password managers, `agent-team auth claude --stdin` accepts a pipe; it never accepts a key as a command argument. No inference is performed during setup.
+No project roots are granted until you configure them. Roots must already exist. Repeat `--root` for multiple roots. Use an absolute `--codex` path when discovery cannot find it. Configure stores roots and the executable path in the private state directory's `config.json`. The CLI auth prompt stores the explicit Anthropic API key in `credentials.json` with mode 600 inside a mode-700 directory. For password managers, `agent-team auth claude --stdin` accepts a pipe; it never accepts a key as a command argument. No inference is performed during setup.
 
 Ambient API-key variables are not forwarded automatically. The public Claude adapter requires its explicit local credential file; missing credentials fail clearly, without subscription login fallback. API usage is billed by Anthropic. Deleting `credentials.json` revokes local access to the saved key; revoke the key with its provider if it was exposed.
 

@@ -43,7 +43,7 @@ export function config(): Config {
   const file = path.join(stateDir, "config.json");
   if (fs.existsSync(file)) saved = JSON.parse(fs.readFileSync(file, "utf8"));
   return {
-    roots: [path.join(os.homedir(), "Developer")],
+    roots: [],
     concurrency: 2,
     timeoutMs: 1_800_000,
     maxTurns: 3,

@@ -24,6 +24,14 @@ export function toolDecision(
   if (name === "AskUserQuestion")
     return "Return NEEDS_INPUT with the question to the manager";
   if (
+    name === "Glob" &&
+    typeof data?.pattern === "string" &&
+    (path.isAbsolute(data.pattern) ||
+      data.pattern.includes("..") ||
+      /(^|[({,])[~/]/.test(data.pattern))
+  )
+    return "Glob patterns must be relative and cannot traverse outside their search root";
+  if (
     ![
       "Read",
       "Glob",
@@ -150,6 +158,7 @@ export class ClaudeAdapter implements Adapter {
       };
     };
     let begin!: () => void;
+    let authorized = false;
     const ready = new Promise<void>((r) => {
       begin = r;
     });
@@ -157,6 +166,7 @@ export class ClaudeAdapter implements Adapter {
     input.emit("input", { bytes: Buffer.byteLength(prompt) });
     async function* messages(): AsyncGenerator<any> {
       await ready;
+      if (!authorized) return;
       yield {
         type: "user",
         message: { role: "user", content: prompt },
@@ -230,6 +240,7 @@ export class ClaudeAdapter implements Adapter {
     try {
       if (input.signal.aborted) throw new Error("Job interrupted");
       assertClaudeApiAuth(await q.accountInfo());
+      authorized = true;
       begin();
       for await (const event of q) {
         if (event.type === "system" && event.subtype === "init") {

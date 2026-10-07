@@ -4,9 +4,9 @@ Public preview: **0.2.0**. Checked on **2026-10-07**, macOS arm64, Node **24.20.
 
 ## Automated checks on the public edition
 
-- `npm run verify`: passed typechecking, formatting, **37 tests**, public-file hygiene, TypeScript build, and Desktop manifest/schema packaging.
+- `npm run verify`: passed typechecking, formatting, **40 tests**, public-file hygiene, TypeScript build, and Desktop manifest/schema packaging.
 - `npm audit --omit=dev --audit-level=high`: no known vulnerabilities reported at verification time.
-- Gitleaks **8.30.1**: source scan passed; the downloaded scanner archive was checked against the upstream SHA-256 manifest. A final Git-history/archive scan is required before publication.
+- Gitleaks **8.30.1**: source scan passed; the downloaded scanner archive was checked against the upstream SHA-256 manifest. The fresh Git history and publishable source archive were also checked; personal paths, runtime data, and private history were excluded. Commits use a public handle and GitHub no-reply email.
 - Actual Claude Agent SDK startup with a synthetic credential and isolated home: selected `ANTHROPIC_API_KEY` as expected. **No prompt was submitted and no model inference was tested.** This verifies source selection, not a valid paid API session.
 
 Tests cover dirty Git preservation, binary/executable files, stale source and symlink rejection, lost/partial integration receipts and rollback, deduplicated requests, provider failures, bounded sessions, cancellation/watchdogs, restart recovery, management leases, capability discovery, MCP discovery, Desktop virtual-stream transport, explicit auth, scoped instructions, secret filename exclusions, and installer ownership/approval preservation.
@@ -15,7 +15,7 @@ Coordinator/provider-state tests use fake adapters. Desktop tests use a virtual 
 
 ## Peer review and historical evidence
 
-This release received a real Claude review through the existing private development bridge. Its initial findings drove changes to explicit public authentication, instruction boundaries, optional routing, normal approval policies, and portable configuration. A final review of the corrected source is pending before publication. This is source review, not a public-edition live inference test.
+This release received a real Claude review through the existing private development bridge. Its initial findings drove changes to explicit public authentication, instruction boundaries, optional routing, normal approval policies, and portable configuration. A second Claude source review approved publication as an early preview, with nonblocking recommendations. Follow-up changes added explicit empty-by-default roots, uninstall ownership rechecks, relative Glob restrictions, and prompt suppression on auth failure. The credential-in-shell risk is disclosed in the security policy. Those follow-up changes were verified locally, not re-reviewed by the peer. This is source review, not a public-edition live inference test.
 
 The predecessor was exercised with live local providers and a Desktop MCP flow. Those private receipts are intentionally not published and do not establish fresh compatibility for the public edition's changed authentication path.
 

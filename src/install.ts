@@ -75,6 +75,10 @@ export function install(
   privateDir(backup);
   const roots =
     home === os.homedir() ? cfg.roots : [path.join(home, "Developer")];
+  if (!roots.length)
+    throw new Error(
+      "Configure at least one explicit project root before installing",
+    );
   for (const dir of roots) {
     if (
       !path.isAbsolute(dir) ||
@@ -227,14 +231,27 @@ export function uninstall(home = os.homedir(), root = repoRoot) {
     };
   if (receipt.root && receipt.root !== root)
     throw new Error("Another checkout owns this installation");
+  const skipped: string[] = [];
   for (const [file, first, last] of [
     [path.join(home, ".codex/config.toml"), tomlBegin, tomlEnd],
     ...(receipt.routingFiles || []).map((file: string) => [file, begin, end]),
   ])
     if (fs.existsSync(file)) {
       const text = fs.readFileSync(file, "utf8");
-      if (text.includes(first))
-        writeCompared(file, replaceBlock(text, "", first, last), text);
+      if (text.includes(first)) {
+        const next = replaceBlock(text, "", first, last);
+        const block = text.slice(text.indexOf(first), text.indexOf(last));
+        const owned =
+          first === tomlBegin
+            ? (parse(text) as any).mcp_servers?.["agent-team"]?.args?.includes(
+                path.join(root, "dist/src/mcp.js"),
+              )
+            : block.includes(
+                `Skill: ${path.join(root, "skills/teamwork/SKILL.md")}\n`,
+              );
+        if (owned) writeCompared(file, next, text);
+        else skipped.push(file);
+      }
     }
   const file = path.join(home, ".claude.json");
   if (fs.existsSync(file)) {
@@ -264,6 +281,7 @@ export function uninstall(home = os.homedir(), root = repoRoot) {
   if (receipt.root === root) fs.rmSync(receiptFile);
   return {
     uninstalled: true,
+    skipped,
     preserved:
       "Task records, snapshots, transcripts, and unrelated configuration. Remove the Desktop extension in its settings.",
   };
