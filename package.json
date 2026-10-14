@@ -34,7 +34,7 @@
   "devDependencies": {
     "@types/node": "26.6.4",
     "ajv": "8.20.0",
-    "prettier": "3.9.9",
+    "prettier": "3.9.10",
     "typescript": "7.0.2"
   },
   "description": "Local MCP coordination between Claude and Codex with persistent sessions and isolated workspaces.",
